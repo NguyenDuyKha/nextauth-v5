@@ -14,7 +14,11 @@ export async function loginAction(
 ): Promise<LoginState> {
     try {
         // IMPORTANT: pass FormData directly
-        await signIn("credentials", formData);
+        // await signIn("credentials", formData);
+        await signIn("credentials", {
+            ...Object.fromEntries(formData),
+            redirect: false, // ✅ FIX
+        });
 
         redirect("/dashboard");
     } catch (error) {

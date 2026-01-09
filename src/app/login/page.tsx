@@ -1,28 +1,13 @@
-"use client";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
+import LoginForm from "./login-form";
 
-import { useActionState } from "react";
-import { loginAction, LoginState } from "./actions";
+export default async function LoginPage() {
+    const session = await auth();
 
-export default function LoginPage() {
-  const [state, formAction, pending] = useActionState<LoginState>(
-    loginAction as any,
-    {}
-  );
+    if (session?.user?.token) {
+        redirect("/dashboard");
+    }
 
-  return (
-    <main>
-      <h1>Login</h1>
-
-      <form action={formAction}>
-        <input name="email" type="email" placeholder="Email" required />
-        <input name="password" type="password" placeholder="Password" required />
-
-        {state.error && <p style={{ color: "red" }}>{state.error}</p>}
-
-        <button disabled={pending}>
-          {pending ? "Signing in..." : "Login"}
-        </button>
-      </form>
-    </main>
-  );
+    return <LoginForm />;
 }
