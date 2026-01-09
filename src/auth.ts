@@ -8,9 +8,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 email: { label: "Email", type: "email" },
                 password: { label: "Password", type: "password" },
             },
-            authorize: async (credentials) => {
+            authorize: async (credentials, request) => {
                 // Validate user (this runs on server)
-                const { email, password } = credentials ?? {};
+                const email = credentials?.email as string | undefined;
+                const password = credentials?.password as string | undefined;
 
                 // Example: call your Express API
                 const res = await fetch(`${process.env.API_URL}/login`, {
