@@ -1,6 +1,6 @@
-import { auth } from "@/auth";
-import { redirect } from "next/navigation";
+import { requireAuth } from "@/lib/require-auth";
 import { logoutAction } from "./actions";
+import { redirect } from "next/navigation";
 
 type MeResponse = {
     user: {
@@ -10,11 +10,7 @@ type MeResponse = {
 };
 
 export default async function DashboardPage() {
-    const session = await auth();
-
-    if (!session?.user?.token) {
-        redirect("/login");
-    }
+    const session = await requireAuth();
 
     const res = await fetch(`${process.env.API_URL}/me`, {
         headers: {
@@ -33,6 +29,7 @@ export default async function DashboardPage() {
         <main className="min-h-screen bg-gray-100 flex items-center justify-center">
             <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md space-y-4">
                 <h1 className="text-2xl font-semibold">Dashboard</h1>
+
                 <p className="text-gray-600">
                     Welcome, <span className="font-medium">{data.user.email}</span>
                 </p>

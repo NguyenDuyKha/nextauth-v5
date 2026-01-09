@@ -1,5 +1,5 @@
 import NextAuth from "next-auth";
-import Credentials from "next-auth/providers/credentials"
+import Credentials from "next-auth/providers/credentials";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     providers: [
@@ -8,40 +8,41 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 email: { label: "Email", type: "email" },
                 password: { label: "Password", type: "password" },
             },
-            authorize: async (credentials, request) => {
-                // Validate user (this runs on server)
-                const email = credentials?.email as string | undefined;
-                const password = credentials?.password as string | undefined;
 
-                // Example: call your Express API
+            authorize: async (credentials) => {
+                if (!credentials?.email || !credentials.password) {
+                    return null;
+                }
+
                 const res = await fetch(`${process.env.API_URL}/login`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ email, password }),
+                    body: JSON.stringify({
+                        email: credentials.email,
+                        password: credentials.password,
+                    }),
                 });
 
-                const data = await res.json();
+                if (!res.ok) return null;
 
-                if (res.ok && data.token) {
-                    // return an object that can be stored in session or JWT
-                    return { email, token: data.token };
-                }
+                const data: { token?: string } = await res.json();
 
-                // Return null for invalid credentials
-                return null;
-            }
-        })
+                if (!data.token) return null;
+
+                return {
+                    email: credentials.email as string,
+                    token: data.token,
+                };
+            },
+        }),
     ],
+
     pages: {
         signIn: "/login",
     },
+
     callbacks: {
-        authorized: async ({ auth }) => {
-            // Logged in users are authenticated, otherwise redirect to login page
-            return !!auth;
-        },
         async jwt({ token, user }) {
-            // Add token from backend into JWT
             if (user?.token) {
                 token.accessToken = user.token;
             }
@@ -49,14 +50,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },
 
         async session({ session, token }) {
-            // Add accessToken to session
-            session.user = session.user || {};
             session.user.token = token.accessToken;
             return session;
         },
     },
+
     session: {
         strategy: "jwt",
     },
+
     trustHost: true,
 });

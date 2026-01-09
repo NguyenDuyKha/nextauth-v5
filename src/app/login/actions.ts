@@ -9,23 +9,27 @@ export type LoginState = {
 };
 
 export async function loginAction(
-    prevState: LoginState,
+    _: LoginState,
     formData: FormData
 ): Promise<LoginState> {
     try {
-        // IMPORTANT: pass FormData directly
-        // await signIn("credentials", formData);
+        const email = formData.get("email");
+        const password = formData.get("password");
+
+        if (!email || !password) {
+            return { error: "Email and password are required" };
+        }
+
         await signIn("credentials", {
-            ...Object.fromEntries(formData),
-            redirect: false, // ✅ FIX
+            email,
+            password,
+            redirect: false,
         });
 
         redirect("/dashboard");
     } catch (error) {
         if (error instanceof AuthError) {
-            if (error.type === "CredentialsSignin") {
-                return { error: "Invalid email or password" };
-            }
+            return { error: "Invalid email or password" };
         }
         throw error;
     }
