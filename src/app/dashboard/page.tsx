@@ -2,6 +2,7 @@ import { requireAuth } from "@/lib/require-auth";
 import { logoutAction } from "./actions";
 import { redirect } from "next/navigation";
 
+// Expected response shape from /me endpoint
 type MeResponse = {
     user: {
         id: number;
@@ -10,15 +11,16 @@ type MeResponse = {
 };
 
 export default async function DashboardPage() {
+    // Ensure user is authenticated (server-side)
     const session = await requireAuth();
-
+    // Fetch current user info from backend
     const res = await fetch(`${process.env.API_URL}/me`, {
         headers: {
             Authorization: `Bearer ${session.user.token}`,
         },
         cache: "no-store",
     });
-
+    // Token invalid or expired
     if (!res.ok) {
         redirect("/login");
     }

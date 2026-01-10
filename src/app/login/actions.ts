@@ -8,6 +8,7 @@ export type LoginState = {
     error?: string;
 };
 
+// Handles login form submission
 export async function loginAction(
     _: LoginState,
     formData: FormData
@@ -19,15 +20,16 @@ export async function loginAction(
         if (!email || !password) {
             return { error: "Email and password are required" };
         }
-
+        // Call NextAuth credentials provider
         await signIn("credentials", {
             email,
             password,
             redirect: false,
         });
-
+        // Redirect after successful login
         redirect("/dashboard");
     } catch (error) {
+        // Invalid credentials
         if (error instanceof AuthError) {
             return { error: "Invalid email or password" };
         }

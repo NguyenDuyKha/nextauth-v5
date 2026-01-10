@@ -1,3 +1,4 @@
+// Protect routes using NextAuth middleware
 export { auth as middleware } from "@/auth";
 
 export const config = {

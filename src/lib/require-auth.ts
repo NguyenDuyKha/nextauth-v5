@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
+// Shared helper to enforce authentication in server components
 export async function requireAuth() {
     const session = await auth();
 

@@ -1,6 +1,7 @@
 import { DefaultSession } from "next-auth";
 import "next-auth/jwt";
 
+// Extend NextAuth session type
 declare module "next-auth" {
     interface Session {
         user: {
@@ -13,6 +14,7 @@ declare module "next-auth" {
     }
 }
 
+// Extend JWT payload type
 declare module "next-auth/jwt" {
     interface JWT {
         accessToken: string;
